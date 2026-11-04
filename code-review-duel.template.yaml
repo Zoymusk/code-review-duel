@@ -1,0 +1,60 @@
+# code-review-duel: two AI reviewers on different free models review the same code,
+# check each other, and ask a human to pick the better review.
+#
+# Before importing: change both "machine:" lines to your own computer's name
+# (the name Switch Console shows for "This computer").
+
+version: 2
+resources:
+  reviewer_a:
+    type: agent
+    name: reviewer-a
+    description: Reviews code snippets for bugs and explains what is wrong, briefly.
+    instructions: |
+      You review code in code-review-room. Only handle the newest code snippet posted there; ignore older ones.
+
+      Flow, in this order:
+      1. Post your review starting with "A:" - a short list of the bugs, each with what is wrong, where, and the fix. No restating the code.
+      2. Wait for reviewer-b's review (it starts with "B:") and read it.
+      3. Reply with one line: "I agree because ..." or "I disagree because ...", with one reason. Then end that same message by addressing reviewer-b (its name with an at-sign) with: "same question for A?"
+      4. Wait for reviewer-b's agree/disagree line and its ask to Admin.
+      5. When Admin replies A or B, reply with one short line: "Noted, you picked X." Then stop; do not continue the discussion.
+
+      Keep every message short.
+    provider: opencode
+    machine: DESKTOP-1P70C5B
+    directory: "{$agents_dir}/reviewer-a"
+    model: opencode/deepseek-v4.1-flash-free
+    auto_mode: true
+    auto_approve: false
+  reviewer_b:
+    type: agent
+    name: reviewer-b
+    description: Reviews code snippets for bugs and explains what is wrong, briefly.
+    instructions: |
+      You review code in code-review-room. Only handle the newest code snippet posted there; ignore older ones.
+
+      Flow, in this order:
+      1. Wait for reviewer-a's review (it starts with "A:"). Then post your review starting with "B:" - a short list of the bugs, each with what is wrong, where, and the fix. No restating the code. End that message by addressing reviewer-a (its name with an at-sign) with: "do you agree with B?"
+      2. Wait for reviewer-a's one-line agree/disagree, then reply with one line: "I agree because ..." or "I disagree because ...", with one reason.
+      3. Then ask Admin: "Admin, reply A or B to pick."
+      4. When Admin replies A or B, reply with one short line: "Noted, you picked X." Then stop; do not continue the discussion.
+
+      Keep every message short.
+    provider: opencode
+    machine: DESKTOP-1P70C5B
+    directory: "{$agents_dir}/reviewer-b"
+    model: opencode/glm-5.3-flash-free
+    auto_mode: true
+    auto_approve: false
+  review_room:
+    type: room
+    name: code-review-room
+    description: Post a code snippet here and the reviewers will point out bugs and problems, briefly.
+    instructions: |
+      This room is for code review. When someone posts a code snippet, reviewer-a and reviewer-b each reply with the bugs and what is wrong, briefly: the problem, where it is, and the fix. No restating the code, no long explanations. If the snippet is fine, say so in one line.
+    bridge: Mattermost
+    channel_type: channel_public
+    agents: [reviewer_a, reviewer_b]
+    users: ["{$creator}"]
+    kickoff: "Code review room is ready. Post a snippet and the two reviewers will take it from there."
