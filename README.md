@@ -6,12 +6,14 @@ Built for the Flip the Switch Hackathon. Runs entirely on free models, with no A
 
 ## Why this exists
 
-One AI reviewer can be confidently wrong. In my test, both reviewers got `int x = 5 / 0;` (Java):
+One AI reviewer can be confidently wrong, and you often can't tell. This project puts two reviewers on different models in one room, so they cross-check each other and a human makes the final call.
 
-- **reviewer-a** (DeepSeek) said it is a compile error. Wrong.
-- **reviewer-b** (GLM) said it compiles and throws `ArithmeticException` at runtime. Right.
+In my first test of `int x = 5 / 0;` (Java), the two models disagreed:
 
-A single-model setup would have given me the wrong answer with no warning. With two models in one room, the disagreement is visible and a human makes the call.
+- **reviewer-a** (DeepSeek) said it is a compile error. Wrong: it compiles and throws `ArithmeticException` at runtime.
+- **reviewer-b** (GLM) said it compiles and throws at runtime. Right.
+
+Model answers vary between runs. On a later run reviewer-a got it right, and on other snippets (a `==` vs `.equals` string bug, a six-bug `GradeBook` class) both models agreed. When they agree, you get extra confidence. When they split, the room shows it and you decide.
 
 ## How it works
 
