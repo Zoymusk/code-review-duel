@@ -13,12 +13,12 @@ In my first test of `int x = 5 / 0;` (Java), the two models disagreed:
 - **reviewer-a** (DeepSeek) said it is a compile error. Wrong: it compiles and throws `ArithmeticException` at runtime.
 - **reviewer-b** (GLM) said it compiles and throws at runtime. Right.
 
-Model answers vary between runs. On a later run reviewer-a got it right, and on other snippets (a `==` vs `.equals` string bug, a six-bug `GradeBook` class) both models agreed. When they agree, you get extra confidence. When they split, the room shows it and you decide.
+Model answers vary between runs. On a later run reviewer-a got it right, and on other snippets (a `==` vs `.equals` string bug, a six-bug `GradeBook` class, a `ShoppingCart`) both models agreed. When they agree, you get extra confidence. When they split, the room shows it and you decide.
 
 ## How it works
 
 1. You post a code snippet in `code-review-room`.
-2. reviewer-a posts its review (starts with `A:`).
+2. reviewer-a posts its review (starts with `A:`) and hands over to reviewer-b.
 3. reviewer-b posts its review (starts with `B:`) and asks reviewer-a if it agrees.
 4. reviewer-a answers "I agree because..." or "I disagree because...".
 5. reviewer-b does the same, then asks the human: "Admin, reply A or B to pick."
@@ -29,7 +29,7 @@ Model answers vary between runs. On a later run reviewer-a got it right, and on 
 This project does not work without Switch:
 
 - **One room, two agents.** Both reviewers read the same room history, so each can answer the other's review.
-- **Agents address each other by name.** The chain (review, agree/disagree, ask the human) runs through mentions in the room.
+- **Agents address each other by name.** The whole chain (review, hand-over, agree/disagree, ask the human) runs through mentions in the room.
 - **The human is in the same room.** Your pick is just another message in the thread.
 - **Different models, one place.** Switch connects both agents to the same chat without any glue code.
 
@@ -49,20 +49,3 @@ You need Docker Desktop, Node.js, and Switch Console.
 int x = 5 / 0;
 System.out.println(x);
 ```
-
-## Models used
-
-| Agent | Model |
-|---|---|
-| reviewer-a | `opencode/deepseek-v4.1-flash-free` |
-| reviewer-b | `opencode/glm-5.3-flash-free` |
-
-Free models can be slow or busy. If a reviewer goes quiet, swap its model for another `-free` one in `opencode models`.
-
-## Demo
-
-TODO: add demo video link.
-
-## What I learned
-
-TODO: fill in after the build (agents only act when mentioned by name; free models sometimes time out on long code; instructions must name who speaks next).
